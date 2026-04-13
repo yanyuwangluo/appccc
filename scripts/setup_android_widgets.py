@@ -21,7 +21,7 @@ def write_widget_xml() -> None:
     (RES_XML / "dashboard_widget_small_info.xml").write_text(
         """<?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/app_name"
+    android:description="Weather widget small"
     android:minWidth="110dp"
     android:minHeight="40dp"
     android:updatePeriodMillis="0"
@@ -35,7 +35,7 @@ def write_widget_xml() -> None:
     (RES_XML / "dashboard_widget_large_info.xml").write_text(
         """<?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/app_name"
+    android:description="Weather widget large"
     android:minWidth="250dp"
     android:minHeight="110dp"
     android:updatePeriodMillis="0"
