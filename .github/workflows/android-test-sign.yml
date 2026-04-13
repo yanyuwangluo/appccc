@@ -32,6 +32,10 @@ jobs:
         working-directory: mobile_template
         run: flutter create . --platforms=android,ios
 
+      - name: Generate Android widget native files
+        run: |
+          python3 scripts/setup_android_widgets.py
+
       - name: Install dependencies
         working-directory: mobile_template
         run: flutter pub get

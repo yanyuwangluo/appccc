@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:home_widget/home_widget.dart";
 
 import "services/api_service.dart";
 import "widget/widget_sync_service.dart";
@@ -54,6 +55,65 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<String?> _pickWidgetStyle() async {
+    return showModalBottomSheet<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: const Text("2x1 小号组件"),
+                onTap: () => Navigator.of(context).pop("small"),
+              ),
+              ListTile(
+                title: const Text("4x2 大号组件"),
+                onTap: () => Navigator.of(context).pop("large"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pinWidget() async {
+    try {
+      final bool supported = await HomeWidget.isRequestPinWidgetSupported();
+      if (!supported) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("当前设备不支持应用内直接添加小组件，请手动到桌面添加。")),
+        );
+        return;
+      }
+
+      final String? style = await _pickWidgetStyle();
+      if (style == null) {
+        return;
+      }
+
+      final String widgetName = style == "large"
+          ? WidgetSyncService.androidWidgetNameLarge
+          : WidgetSyncService.androidWidgetNameSmall;
+
+      await HomeWidget.requestPinWidget(
+        name: widgetName,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("已发起添加${style == "large" ? "4x2" : "2x1"}小组件请求，请在系统弹窗中确认。")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("发起添加小组件失败: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,6 +132,11 @@ class _HomePageState extends State<HomePage> {
             FilledButton(
               onPressed: _refresh,
               child: const Text("拉取天气并刷新小组件"),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: _pinWidget,
+              child: const Text("添加到桌面小组件"),
             ),
           ],
         ),

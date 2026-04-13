@@ -51,6 +51,26 @@ flutter run
 2. 写入 Widget 共享数据
 3. 请求刷新桌面小组件
 
+### Android 原生小组件（已补全脚本）
+
+仓库提供了自动生成脚本：`scripts/setup_android_widgets.py`，会生成并注入：
+
+- `AndroidManifest.xml`（`INTERNET` 权限 + 两个小组件 receiver）
+- `DashboardWidgetProviderSmall`（2x1）
+- `DashboardWidgetProviderLarge`（4x2）
+- 对应 `res/xml` 与 `res/layout` 文件
+
+本地使用顺序：
+
+```bash
+cd mobile_template
+flutter create . --platforms=android,ios
+cd ..
+python scripts/setup_android_widgets.py
+```
+
+> 默认包名是 `com.example.mobile_template`。如果你修改了 Android 包名，请同步修改 `scripts/setup_android_widgets.py` 里的 `PACKAGE_NAME`。
+
 ## 4. 上传 GitHub 后自动打包
 
 当前配置已支持：你把代码上传到 GitHub 后，推送到 `main/master` 会自动触发打包；也可以手动点 `Run workflow` 触发。

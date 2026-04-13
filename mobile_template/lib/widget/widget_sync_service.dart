@@ -4,6 +4,8 @@ import "../services/api_service.dart";
 
 class WidgetSyncService {
   static const String androidWidgetName = "DashboardWidgetProvider";
+  static const String androidWidgetNameSmall = "DashboardWidgetProviderSmall";
+  static const String androidWidgetNameLarge = "DashboardWidgetProviderLarge";
   static const String iOSWidgetName = "DashboardWidget";
 
   final ApiService _apiService;
