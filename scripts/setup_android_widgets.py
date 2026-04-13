@@ -6,6 +6,7 @@ ANDROID_MAIN = ROOT / "mobile_template" / "android" / "app" / "src" / "main"
 MANIFEST_PATH = ANDROID_MAIN / "AndroidManifest.xml"
 RES_XML = ANDROID_MAIN / "res" / "xml"
 RES_LAYOUT = ANDROID_MAIN / "res" / "layout"
+RES_VALUES = ANDROID_MAIN / "res" / "values"
 
 PACKAGE_NAME = "com.example.mobile_template"
 
@@ -13,6 +14,7 @@ PACKAGE_NAME = "com.example.mobile_template"
 def ensure_dirs() -> None:
     RES_XML.mkdir(parents=True, exist_ok=True)
     RES_LAYOUT.mkdir(parents=True, exist_ok=True)
+    RES_VALUES.mkdir(parents=True, exist_ok=True)
     kotlin_dir = ANDROID_MAIN / "kotlin" / Path(*PACKAGE_NAME.split("."))
     kotlin_dir.mkdir(parents=True, exist_ok=True)
 
@@ -21,7 +23,7 @@ def write_widget_xml() -> None:
     (RES_XML / "dashboard_widget_small_info.xml").write_text(
         """<?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="Weather widget small"
+    android:description="@string/widget_desc_small"
     android:minWidth="110dp"
     android:minHeight="40dp"
     android:updatePeriodMillis="0"
@@ -35,13 +37,23 @@ def write_widget_xml() -> None:
     (RES_XML / "dashboard_widget_large_info.xml").write_text(
         """<?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="Weather widget large"
+    android:description="@string/widget_desc_large"
     android:minWidth="250dp"
     android:minHeight="110dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/dashboard_widget_large_layout"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />
+""",
+        encoding="utf-8",
+    )
+
+    (RES_VALUES / "home_widget_strings.xml").write_text(
+        """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc_small">Weather widget small</string>
+    <string name="widget_desc_large">Weather widget large</string>
+</resources>
 """,
         encoding="utf-8",
     )
