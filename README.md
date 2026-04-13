@@ -57,10 +57,7 @@ flutter run
 
 ### Android Secrets
 
-- `ANDROID_KEYSTORE_BASE64`
-- `ANDROID_KEYSTORE_PASSWORD`
-- `ANDROID_KEY_ALIAS`
-- `ANDROID_KEY_PASSWORD`
+- Android 现在已改为和你给的示例一致：**无需配置证书 Secret**，直接编译 release APK（通常是默认签名，仅用于测试分发）。
 
 ### iOS Secrets（测试证书）
 
@@ -90,6 +87,8 @@ git push -u origin main
 ```
 
 3. 在仓库 `Settings -> Secrets and variables -> Actions` 中配置上面列出的 Secrets。
+   - Android 不需要额外 Secrets
+   - iOS 仍然需要证书 Secrets
 4. 进入 `Actions` 页面，运行：
    - `Android Test Signed Build`
    - `iOS Test Signed Build`

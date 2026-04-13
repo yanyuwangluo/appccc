@@ -1,13 +1,17 @@
-name: Android Test Signed Build
+name: Android CI
 
 on:
+  pull_request:
   workflow_dispatch:
   push:
-    branches: ["main", "master"]
+    branches: ["**"]
+    tags-ignore: ["v*"]
 
 jobs:
   build-android:
+    name: Build APK (CI)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,6 +26,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
 
       - name: Generate Flutter platform folders
         working-directory: mobile_template
@@ -31,20 +36,7 @@ jobs:
         working-directory: mobile_template
         run: flutter pub get
 
-      - name: Decode test keystore
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > mobile_template/android-test.keystore
-
-      - name: Create key.properties
-        run: |
-          cat > mobile_template/android/key.properties <<EOF
-          storeFile=../android-test.keystore
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-          EOF
-
-      - name: Build apk
+      - name: Build APK (release)
         working-directory: mobile_template
         run: flutter build apk --release
 
