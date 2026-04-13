@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _pinWidget() async {
     try {
-      final bool supported = await HomeWidget.isRequestPinWidgetSupported();
+      final bool supported = await HomeWidget.isRequestPinWidgetSupported() ?? false;
       if (!supported) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
