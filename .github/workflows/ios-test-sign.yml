@@ -1,0 +1,73 @@
+name: iOS Test Signed Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Generate Flutter platform folders
+        working-directory: mobile_template
+        run: flutter create . --platforms=android,ios
+
+      - name: Install dependencies
+        working-directory: mobile_template
+        run: flutter pub get
+
+      - name: Set iOS bundle id
+        run: |
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = [^;]*;/PRODUCT_BUNDLE_IDENTIFIER = ${{ secrets.IOS_BUNDLE_ID }};/g" mobile_template/ios/Runner.xcodeproj/project.pbxproj
+
+      - name: Decode signing files
+        run: |
+          echo "${{ secrets.IOS_P12_BASE64 }}" | base64 --decode > cert.p12
+          echo "${{ secrets.IOS_PROVISION_BASE64 }}" | base64 --decode > profile.mobileprovision
+
+      - name: Install certificate and profile
+        run: |
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import cert.p12 -k build.keychain -P "${{ secrets.IOS_P12_PASSWORD }}" -T /usr/bin/codesign
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/"
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > mobile_template/ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string>${{ secrets.IOS_TEAM_ID }}</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Build IPA with test cert
+        working-directory: mobile_template
+        run: |
+          flutter build ipa --release \
+            --export-options-plist=ios/ExportOptions.plist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-ipa
+          path: mobile_template/build/ios/ipa/*.ipa

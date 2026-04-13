@@ -1,0 +1,55 @@
+name: Android Test Signed Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Generate Flutter platform folders
+        working-directory: mobile_template
+        run: flutter create . --platforms=android,ios
+
+      - name: Install dependencies
+        working-directory: mobile_template
+        run: flutter pub get
+
+      - name: Decode test keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > mobile_template/android-test.keystore
+
+      - name: Create key.properties
+        run: |
+          cat > mobile_template/android/key.properties <<EOF
+          storeFile=../android-test.keystore
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Build apk
+        working-directory: mobile_template
+        run: flutter build apk --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: mobile_template/build/app/outputs/flutter-apk/app-release.apk
