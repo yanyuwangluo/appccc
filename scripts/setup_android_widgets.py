@@ -135,33 +135,43 @@ def write_provider() -> None:
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
 
 class DashboardWidgetProviderSmall : HomeWidgetProvider() {{
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {{
-        updateAll(context, appWidgetManager, appWidgetIds, R.layout.dashboard_widget_small_layout)
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+        widgetData: SharedPreferences,
+    ) {{
+        updateAll(appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_small_layout)
     }}
 }}
 
 class DashboardWidgetProviderLarge : HomeWidgetProvider() {{
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {{
-        updateAll(context, appWidgetManager, appWidgetIds, R.layout.dashboard_widget_large_layout)
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+        widgetData: SharedPreferences,
+    ) {{
+        updateAll(appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_large_layout)
     }}
 }}
 
 private fun updateAll(
-    context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetIds: IntArray,
+    widgetData: SharedPreferences,
     layoutId: Int,
 ) {{
-    val sp = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
-    val title = sp.getString("widget_title", "青岛天气") ?: "青岛天气"
-    val value = sp.getString("widget_value", "点击 App 刷新天气") ?: "点击 App 刷新天气"
+    val title = widgetData.getString("widget_title", "青岛天气") ?: "青岛天气"
+    val value = widgetData.getString("widget_value", "点击 App 刷新天气") ?: "点击 App 刷新天气"
 
     appWidgetIds.forEach {{ widgetId ->
-        val views = RemoteViews(context.packageName, layoutId)
+        val views = RemoteViews(BuildConfig.APPLICATION_ID, layoutId)
         views.setTextViewText(R.id.widget_title, title)
         views.setTextViewText(R.id.widget_value, value)
         appWidgetManager.updateAppWidget(widgetId, views)
