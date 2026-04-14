@@ -146,7 +146,7 @@ class DashboardWidgetProviderSmall : HomeWidgetProvider() {{
         appWidgetIds: IntArray,
         widgetData: SharedPreferences,
     ) {{
-        updateAll(appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_small_layout)
+        updateAll(context, appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_small_layout)
     }}
 }}
 
@@ -157,11 +157,12 @@ class DashboardWidgetProviderLarge : HomeWidgetProvider() {{
         appWidgetIds: IntArray,
         widgetData: SharedPreferences,
     ) {{
-        updateAll(appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_large_layout)
+        updateAll(context, appWidgetManager, appWidgetIds, widgetData, R.layout.dashboard_widget_large_layout)
     }}
 }}
 
 private fun updateAll(
+    context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetIds: IntArray,
     widgetData: SharedPreferences,
@@ -171,7 +172,7 @@ private fun updateAll(
     val value = widgetData.getString("widget_value", "点击 App 刷新天气") ?: "点击 App 刷新天气"
 
     appWidgetIds.forEach {{ widgetId ->
-        val views = RemoteViews(BuildConfig.APPLICATION_ID, layoutId)
+        val views = RemoteViews(context.packageName, layoutId)
         views.setTextViewText(R.id.widget_title, title)
         views.setTextViewText(R.id.widget_value, value)
         appWidgetManager.updateAppWidget(widgetId, views)
