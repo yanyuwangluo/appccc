@@ -16,6 +16,8 @@ class WidgetSyncService {
 
     await HomeWidget.saveWidgetData<String>("widget_title", data.title);
     await HomeWidget.saveWidgetData<String>("widget_value", data.value);
+    await HomeWidget.saveWidgetData<String>("widget_subtitle", data.subtitle);
+    await HomeWidget.saveWidgetData<String>("widget_link", data.link);
     await HomeWidget.saveWidgetData<String>("widget_updated", data.updatedAt.toIso8601String());
 
     await HomeWidget.updateWidget(

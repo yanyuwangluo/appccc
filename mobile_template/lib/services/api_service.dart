@@ -3,11 +3,15 @@ import "package:dio/dio.dart";
 class DashboardData {
   final String title;
   final String value;
+  final String subtitle;
+  final String link;
   final DateTime updatedAt;
 
   const DashboardData({
     required this.title,
     required this.value,
+    required this.subtitle,
+    required this.link,
     required this.updatedAt,
   });
 }
@@ -32,29 +36,41 @@ class ApiService {
   }
 
   Future<DashboardData> _fetchFromRemote() async {
-    final Response<dynamic> response = await _dio.get(
-      "/v1/tq_tips.php",
-      queryParameters: <String, dynamic>{
-        "type": "today",
-        "msg": "青岛",
-        "n": 1,
-      },
-    );
+    final Response<dynamic> response = await _dio.get("/v1/update_cartoon.php");
     final dynamic raw = response.data;
     if (raw is! Map<String, dynamic>) {
-      throw Exception("天气接口返回格式异常");
+      throw Exception("动漫接口返回格式异常");
     }
 
     if (raw["code"] != 200) {
-      throw Exception("天气接口返回失败: ${raw["code"]}");
+      throw Exception("动漫接口返回失败: ${raw["code"]}");
     }
 
-    final dynamic data = raw["data"];
-    final String weather = (data is Map<String, dynamic>) ? (data["weather"]?.toString() ?? "暂无天气数据") : "暂无天气数据";
+    final dynamic list = raw["data"];
+    if (list is! List || list.isEmpty) {
+      throw Exception("动漫接口暂无更新数据");
+    }
+
+    final dynamic first = list.first;
+    if (first is! Map<String, dynamic>) {
+      throw Exception("动漫接口数据项格式异常");
+    }
+
+    final String today = raw["today"]?.toString() ?? "";
+    final String week = raw["today_week"]?.toString() ?? "";
+    final String type = first["type"]?.toString() ?? first["类型"]?.toString() ?? "动漫";
+    final String desc = first["desc"]?.toString() ?? "暂无简介";
+    final String upTime = first["up_time"]?.toString() ?? "--:--";
+    final String upDate = first["up_date"]?.toString() ?? first["update_date"]?.toString() ?? "更新信息未知";
+    final String title = first["title"]?.toString() ?? first["标题"]?.toString() ?? "未知作品";
+    final String link = first["link"]?.toString() ?? first["链接"]?.toString() ?? "";
+    final String subtitle = "更新 $upTime | $upDate | $type";
 
     return DashboardData(
-      title: "青岛天气",
-      value: weather,
+      title: "$title${today.isNotEmpty || week.isNotEmpty ? " ($today $week)" : ""}",
+      value: desc,
+      subtitle: subtitle,
+      link: link,
       updatedAt: DateTime.now(),
     );
   }

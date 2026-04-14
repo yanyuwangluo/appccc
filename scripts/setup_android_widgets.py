@@ -66,18 +66,18 @@ def write_widget_layouts() -> None:
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
+    android:padding="12dp"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="#111827">
 
     <TextView
         android:id="@+id/widget_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="青岛天气"
+        android:text="今日动漫更新"
         android:textStyle="bold"
         android:textSize="14sp"
-        android:textColor="@android:color/black" />
+        android:textColor="#F9FAFB" />
 
     <TextView
         android:id="@+id/widget_value"
@@ -86,9 +86,20 @@ def write_widget_layouts() -> None:
         android:layout_marginTop="6dp"
         android:maxLines="2"
         android:ellipsize="end"
-        android:text="点击 App 刷新天气"
+        android:text="打开 App 拉取最新动漫更新"
         android:textSize="12sp"
-        android:textColor="@android:color/black" />
+        android:textColor="#E5E7EB" />
+
+    <TextView
+        android:id="@+id/widget_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="更新时间 --:--"
+        android:textSize="10sp"
+        android:textColor="#93C5FD" />
 </LinearLayout>
 """,
         encoding="utf-8",
@@ -99,29 +110,40 @@ def write_widget_layouts() -> None:
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp"
+    android:padding="14dp"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="#0B1220">
 
     <TextView
         android:id="@+id/widget_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="青岛天气"
+        android:text="今日动漫更新"
         android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@android:color/black" />
+        android:textSize="17sp"
+        android:textColor="#FFFFFF" />
 
     <TextView
         android:id="@+id/widget_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:maxLines="6"
+        android:maxLines="4"
         android:ellipsize="end"
-        android:text="点击 App 刷新天气"
+        android:text="打开 App 拉取最新动漫更新"
         android:textSize="13sp"
-        android:textColor="@android:color/black" />
+        android:textColor="#E2E8F0" />
+
+    <TextView
+        android:id="@+id/widget_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="更新时间 --:--"
+        android:textSize="11sp"
+        android:textColor="#93C5FD" />
 </LinearLayout>
 """,
         encoding="utf-8",
@@ -168,13 +190,15 @@ private fun updateAll(
     widgetData: SharedPreferences,
     layoutId: Int,
 ) {{
-    val title = widgetData.getString("widget_title", "青岛天气") ?: "青岛天气"
-    val value = widgetData.getString("widget_value", "点击 App 刷新天气") ?: "点击 App 刷新天气"
+    val title = widgetData.getString("widget_title", "今日动漫更新") ?: "今日动漫更新"
+    val value = widgetData.getString("widget_value", "打开 App 拉取最新动漫更新") ?: "打开 App 拉取最新动漫更新"
+    val subtitle = widgetData.getString("widget_subtitle", "更新时间 --:--") ?: "更新时间 --:--"
 
     appWidgetIds.forEach {{ widgetId ->
         val views = RemoteViews(context.packageName, layoutId)
         views.setTextViewText(R.id.widget_title, title)
         views.setTextViewText(R.id.widget_value, value)
+        views.setTextViewText(R.id.widget_subtitle, subtitle)
         appWidgetManager.updateAppWidget(widgetId, views)
     }}
 }}

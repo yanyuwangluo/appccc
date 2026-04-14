@@ -30,9 +30,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WidgetSyncService _syncService = WidgetSyncService(ApiService());
-  String _title = "未刷新";
-  String _value = "--";
-  String _status = "点击按钮拉取天气并刷新小组件";
+  String _title = "今日动漫更新";
+  String _value = "点击按钮拉取最新更新";
+  String _subtitle = "--";
+  String _status = "点击按钮同步接口数据与桌面小组件";
 
   Future<void> _refresh() async {
     setState(() {
@@ -45,6 +46,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _title = data.title;
         _value = data.value;
+        _subtitle = data.subtitle;
         _status = "刷新成功: ${data.updatedAt}";
       });
     } catch (e) {
@@ -107,6 +109,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _title = data.title;
         _value = data.value;
+        _subtitle = data.subtitle;
         _status = "已同步数据并发起添加${style == "large" ? "4x2" : "2x1"}小组件请求";
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,28 +126,67 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("天气接口 + 小组件")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text("城市: $_title", style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text("天气: $_value", style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 16),
-            Text(_status),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _refresh,
-              child: const Text("拉取天气并刷新小组件"),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: _pinWidget,
-              child: const Text("添加到桌面小组件"),
-            ),
-          ],
+      appBar: AppBar(title: const Text("动漫更新 + 桌面小组件")),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: <Color>[Color(0xFF0F172A), Color(0xFF1E293B)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Card(
+                color: const Color(0xFF111827),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _value,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFFE5E7EB)),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _subtitle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF93C5FD)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                _status,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFFCBD5E1)),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _refresh,
+                child: const Text("拉取动漫更新并刷新小组件"),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: _pinWidget,
+                child: const Text("添加到桌面小组件"),
+              ),
+            ],
+          ),
         ),
       ),
     );
