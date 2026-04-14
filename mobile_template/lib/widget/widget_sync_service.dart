@@ -3,7 +3,6 @@ import "package:home_widget/home_widget.dart";
 import "../services/api_service.dart";
 
 class WidgetSyncService {
-  static const String androidWidgetName = "DashboardWidgetProvider";
   static const String androidWidgetNameSmall = "DashboardWidgetProviderSmall";
   static const String androidWidgetNameLarge = "DashboardWidgetProviderLarge";
   static const String iOSWidgetName = "DashboardWidget";
@@ -20,7 +19,12 @@ class WidgetSyncService {
     await HomeWidget.saveWidgetData<String>("widget_updated", data.updatedAt.toIso8601String());
 
     await HomeWidget.updateWidget(
-      androidName: androidWidgetName,
+      androidName: androidWidgetNameSmall,
+      iOSName: iOSWidgetName,
+    );
+
+    await HomeWidget.updateWidget(
+      androidName: androidWidgetNameLarge,
       iOSName: iOSWidgetName,
     );
 

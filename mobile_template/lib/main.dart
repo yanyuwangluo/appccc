@@ -98,11 +98,17 @@ class _HomePageState extends State<HomePage> {
           ? WidgetSyncService.androidWidgetNameLarge
           : WidgetSyncService.androidWidgetNameSmall;
 
+      final DashboardData data = await _syncService.refreshWidgetData();
       await HomeWidget.requestPinWidget(
         name: widgetName,
       );
 
       if (!mounted) return;
+      setState(() {
+        _title = data.title;
+        _value = data.value;
+        _status = "已同步数据并发起添加${style == "large" ? "4x2" : "2x1"}小组件请求";
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("已发起添加${style == "large" ? "4x2" : "2x1"}小组件请求，请在系统弹窗中确认。")),
       );

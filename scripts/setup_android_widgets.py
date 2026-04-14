@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 
@@ -133,17 +134,17 @@ def write_provider() -> None:
         f"""package {PACKAGE_NAME}
 
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
+import es.antonborri.home_widget.HomeWidgetProvider
 
-class DashboardWidgetProviderSmall : AppWidgetProvider() {{
+class DashboardWidgetProviderSmall : HomeWidgetProvider() {{
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {{
         updateAll(context, appWidgetManager, appWidgetIds, R.layout.dashboard_widget_small_layout)
     }}
 }}
 
-class DashboardWidgetProviderLarge : AppWidgetProvider() {{
+class DashboardWidgetProviderLarge : HomeWidgetProvider() {{
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {{
         updateAll(context, appWidgetManager, appWidgetIds, R.layout.dashboard_widget_large_layout)
     }}
@@ -176,10 +177,13 @@ def patch_manifest() -> None:
         raise FileNotFoundError(f"AndroidManifest not found: {{MANIFEST_PATH}}")
 
     text = MANIFEST_PATH.read_text(encoding="utf-8")
-    text = text.replace(
-        "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">",
-        "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\\n    <uses-permission android:name=\"android.permission.INTERNET\"/>",
-    )
+    if 'android.permission.INTERNET' not in text:
+        text = re.sub(
+            r"(<manifest\b[^>]*>)",
+            r'\1\n    <uses-permission android:name="android.permission.INTERNET"/>',
+            text,
+            count=1,
+        )
 
     small_receiver = """
         <receiver

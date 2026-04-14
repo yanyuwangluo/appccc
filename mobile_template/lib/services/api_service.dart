@@ -14,9 +14,24 @@ class DashboardData {
 
 class ApiService {
   static const String baseUrl = "https://api.suol.cc";
-  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl, connectTimeout: const Duration(seconds: 8)));
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
 
   Future<DashboardData> fetchLatestData() async {
+    try {
+      return await _fetchFromRemote();
+    } on DioException catch (_) {
+      // Network on mobile can be unstable on first request; retry once.
+      return _fetchFromRemote();
+    }
+  }
+
+  Future<DashboardData> _fetchFromRemote() async {
     final Response<dynamic> response = await _dio.get(
       "/v1/tq_tips.php",
       queryParameters: <String, dynamic>{
