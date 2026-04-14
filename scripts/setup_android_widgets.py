@@ -5,6 +5,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID_MAIN = ROOT / "mobile_template" / "android" / "app" / "src" / "main"
 MANIFEST_PATH = ANDROID_MAIN / "AndroidManifest.xml"
+APP_GRADLE_KTS = ROOT / "mobile_template" / "android" / "app" / "build.gradle.kts"
+APP_GRADLE = ROOT / "mobile_template" / "android" / "app" / "build.gradle"
 RES_XML = ANDROID_MAIN / "res" / "xml"
 RES_LAYOUT = ANDROID_MAIN / "res" / "layout"
 RES_VALUES = ANDROID_MAIN / "res" / "values"
@@ -12,11 +14,25 @@ RES_VALUES = ANDROID_MAIN / "res" / "values"
 PACKAGE_NAME = "com.example.mobile_template"
 
 
+def detect_package_name() -> str:
+    candidates = [APP_GRADLE_KTS, APP_GRADLE]
+    pattern = re.compile(r'namespace\s*=\s*"([^"]+)"')
+    for file in candidates:
+        if not file.exists():
+            continue
+        text = file.read_text(encoding="utf-8")
+        match = pattern.search(text)
+        if match:
+            return match.group(1).strip()
+    return PACKAGE_NAME
+
+
 def ensure_dirs() -> None:
+    package_name = detect_package_name()
     RES_XML.mkdir(parents=True, exist_ok=True)
     RES_LAYOUT.mkdir(parents=True, exist_ok=True)
     RES_VALUES.mkdir(parents=True, exist_ok=True)
-    kotlin_dir = ANDROID_MAIN / "kotlin" / Path(*PACKAGE_NAME.split("."))
+    kotlin_dir = ANDROID_MAIN / "kotlin" / Path(*package_name.split("."))
     kotlin_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -151,9 +167,15 @@ def write_widget_layouts() -> None:
 
 
 def write_provider() -> None:
-    kotlin_dir = ANDROID_MAIN / "kotlin" / Path(*PACKAGE_NAME.split("."))
+    package_name = detect_package_name()
+    kotlin_root = ANDROID_MAIN / "kotlin"
+    kotlin_dir = kotlin_root / Path(*package_name.split("."))
+    for old in kotlin_root.rglob("DashboardWidgetProvider.kt"):
+        if old.parent != kotlin_dir:
+            old.unlink()
+
     (kotlin_dir / "DashboardWidgetProvider.kt").write_text(
-        f"""package {PACKAGE_NAME}
+        f"""package {package_name}
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -220,9 +242,10 @@ def patch_manifest() -> None:
             count=1,
         )
 
-    small_receiver = """
+    package_name = detect_package_name()
+    small_receiver = f"""
         <receiver
-            android:name=".DashboardWidgetProviderSmall"
+            android:name="{package_name}.DashboardWidgetProviderSmall"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -232,9 +255,9 @@ def patch_manifest() -> None:
                 android:resource="@xml/dashboard_widget_small_info" />
         </receiver>
 """
-    large_receiver = """
+    large_receiver = f"""
         <receiver
-            android:name=".DashboardWidgetProviderLarge"
+            android:name="{package_name}.DashboardWidgetProviderLarge"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
